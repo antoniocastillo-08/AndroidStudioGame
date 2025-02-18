@@ -8,12 +8,12 @@ import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
+import java.util.ArrayList;
+
 public class GameView extends SurfaceView implements Runnable {
 
     volatile boolean playing;
     private Thread gameThread = null;
-
-    //adding the player to this class
     private Player player;
 
     //These objects will be used for drawing
@@ -21,6 +21,8 @@ public class GameView extends SurfaceView implements Runnable {
     private Canvas canvas;
     private SurfaceHolder surfaceHolder;
 
+
+    private ArrayList<Jungle> jungles= new ArrayList<>();
     public GameView(Context context, int screenX, int screenY) {
         super(context);
 
@@ -31,6 +33,11 @@ public class GameView extends SurfaceView implements Runnable {
         //initializing drawing objects
         surfaceHolder = getHolder();
         paint = new Paint();
+        int starNums = 100;
+        for (int i = 0; i < starNums; i++) {
+            Jungle s  = new Jungle(screenX, screenY);
+            jungles.add(s);
+        }
     }
 
     @Override
@@ -45,6 +52,9 @@ public class GameView extends SurfaceView implements Runnable {
     private void update() {
         //updating player position
         player.update();
+        for (Jungle j: jungles){
+            j.update(player.getSpeed());
+        }
     }
 
     private void draw() {
@@ -54,7 +64,14 @@ public class GameView extends SurfaceView implements Runnable {
             canvas = surfaceHolder.lockCanvas();
             //drawing a background color for canvas
             canvas.drawColor(Color.BLACK);
-            //Drawing the player
+
+            paint.setColor(Color.WHITE);
+
+            for (Jungle s : jungles) {
+                paint.setStrokeWidth(s.getJungleWidth());
+                canvas.drawPoint(s.getX(), s.getY(), paint);
+            }
+
             canvas.drawBitmap(
                     player.getBitmap(),
                     player.getX(),
