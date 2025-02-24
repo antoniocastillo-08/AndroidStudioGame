@@ -3,6 +3,7 @@ package com.example.juegoandroidsnake;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Rect;
 
 public class Player {
     private Bitmap bitmap;
@@ -14,6 +15,8 @@ public class Player {
     private final int GRAVITY = -10;
     private int maxY;
     private int minY;
+
+    private Rect detectCollision;
 
     private final int MIN_SPEED = 1;
     private final int MAX_SPEED = 20;
@@ -32,6 +35,8 @@ public class Player {
 
         //setting the boosting value to false initially
         boosting = false;
+
+        detectCollision =  new Rect(x, y, bitmap.getWidth(), bitmap.getHeight());
     }
     //setting boosting true
 
@@ -73,6 +78,13 @@ public class Player {
         if (y > maxY) {
             y = maxY;
         }
+        detectCollision.left = x;
+        detectCollision.top = y;
+        detectCollision.right = x + bitmap.getWidth();
+        detectCollision.bottom = y + bitmap.getHeight();
+    }
+    public Rect getDetectCollision() {
+        return detectCollision;
     }
 
     public Bitmap getBitmap() {

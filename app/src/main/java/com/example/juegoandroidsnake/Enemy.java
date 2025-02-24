@@ -24,6 +24,8 @@ public class Enemy {
     private int maxY;
     private int minY;
 
+    private Rect detectCollision;
+
     public Enemy(Context context, int screenX, int screenY) {
         //getting bitmap from drawable resource
         bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.enemy);
@@ -40,6 +42,8 @@ public class Enemy {
         x = screenX;
         y = generator.nextInt(maxY) - bitmap.getHeight();
 
+        detectCollision = new Rect(x,y,bitmap.getWidth(), bitmap.getHeight());
+
     }
     public void update(int playerSpeed){
         x -= playerSpeed;
@@ -50,6 +54,19 @@ public class Enemy {
             x= maxX;
             y = generator.nextInt(maxY) - bitmap.getHeight();
         }
+
+        detectCollision.left= x;
+        detectCollision.top= y;
+        detectCollision.right= x + bitmap.getWidth();
+        detectCollision.bottom= y + bitmap.getHeight();
+
+    }
+    public void setX(int x){
+        this.x = x;
+    }
+
+    public Rect getDetectCollision() {
+        return detectCollision;
     }
 
     public Bitmap getBitmap() {
