@@ -20,7 +20,7 @@ public class Boom {
     public Boom(Context context) {
         //getting boom image from drawable resource
         bitmap = BitmapFactory.decodeResource
-                (context.getResources(), R.drawable.enemy);
+                (context.getResources(), R.drawable.boom);
 
         //setting the coordinate outside the screen
         //so that it won't shown up in the screen
