@@ -1,6 +1,8 @@
 package com.example.juegoandroidsnake;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -9,45 +11,56 @@ import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
-import java.util.ArrayList;
-
 public class GameView extends SurfaceView implements Runnable {
 
     volatile boolean playing;
     private Thread gameThread = null;
     private Player player;
 
-    //These objects will be used for drawing
     private Paint paint;
     private Canvas canvas;
     private SurfaceHolder surfaceHolder;
 
     private Enemy[] enemies;
-    private int enemyCount= 3;
-
-    private ArrayList<Jungle> jungles= new ArrayList<>();
-
+    private int enemyCount = 3;
     private Boom boom;
+
+    private Bitmap background; // Imagen de fondo
+
+    private Bitmap upArrow, downArrow, leftArrow, rightArrow;
+    private int dpadSize = 200; // Tamaño de cada botón de la cruceta
+    private int dpadX, dpadY;
+
+
     public GameView(Context context, int screenX, int screenY) {
         super(context);
 
-        //initializing player object
-        //this time also passing screen size to player constructor
+        // Inicializar el jugador
         player = new Player(context, screenX, screenY);
 
-        //initializing drawing objects
+        // Inicializar objetos de dibujo
         surfaceHolder = getHolder();
         paint = new Paint();
-        int starNums = 100;
-        for (int i = 0; i < starNums; i++) {
-            Jungle s  = new Jungle(screenX, screenY);
-            jungles.add(s);
-        }
+
+        background = BitmapFactory.decodeResource(getResources(), R.drawable.fondo);
+        background = Bitmap.createScaledBitmap(background, screenX, screenY, false);
+
+        // Crear enemigos
         enemies = new Enemy[enemyCount];
-        for(int i=0; i<enemyCount; i++){
+        for (int i = 0; i < enemyCount; i++) {
             enemies[i] = new Enemy(context, screenX, screenY);
         }
         boom = new Boom(context);
+
+        upArrow = BitmapFactory.decodeResource(getResources(), R.drawable.top);
+        downArrow = BitmapFactory.decodeResource(getResources(), R.drawable.down);
+        leftArrow = BitmapFactory.decodeResource(getResources(), R.drawable.left);
+        rightArrow = BitmapFactory.decodeResource(getResources(), R.drawable.right);
+
+// Posición en la esquina inferior izquierda
+        dpadX = 500;
+        dpadY = 100;
+
     }
 
     @Override
@@ -60,19 +73,14 @@ public class GameView extends SurfaceView implements Runnable {
     }
 
     private void update() {
-        //updating player position
         player.update();
 
         boom.setX(-800);
         boom.setY(-900);
 
-        for (Jungle j: jungles){
-            j.update(player.getSpeed());
-        }
-        for(int i=0; i<enemyCount; i++){
-            enemies[i].update(player.getSpeed());
+        for (int i = 0; i < enemyCount; i++) {
+            enemies[i].update(0);
             if (Rect.intersects(player.getDetectCollision(), enemies[i].getDetectCollision())) {
-                //moving enemy outside the left edge
                 boom.setX(enemies[i].getX());
                 boom.setY(enemies[i].getY());
                 enemies[i].setX(-200);
@@ -81,42 +89,33 @@ public class GameView extends SurfaceView implements Runnable {
     }
 
     private void draw() {
-        //checking if surface is valid
         if (surfaceHolder.getSurface().isValid()) {
-            //locking the canvas
             canvas = surfaceHolder.lockCanvas();
-            //drawing a background color for canvas
-            canvas.drawColor(Color.BLACK);
 
-            paint.setColor(Color.WHITE);
+            // Dibujar el fondo
+            canvas.drawBitmap(background, 0, 0, paint);
 
-            for (Jungle s : jungles) {
-                paint.setStrokeWidth(s.getJungleWidth());
-                canvas.drawPoint(s.getX(), s.getY(), paint);
-            }
+            // Dibujar el suelo
+            paint.setColor(Color.rgb(13, 60, 161));
+            canvas.drawRect(0, getHeight() - 150, getWidth(), getHeight(), paint);
 
-            canvas.drawBitmap(
-                    player.getBitmap(),
-                    player.getX(),
-                    player.getY(),
-                    paint);
+            // Dibujar el jugador
+            canvas.drawBitmap(player.getBitmap(), player.getX(), player.getY(), paint);
 
+            // Dibujar la cruceta
+            canvas.drawBitmap(upArrow, dpadX + dpadSize, dpadY, paint);
+            canvas.drawBitmap(downArrow, dpadX + dpadSize, dpadY + dpadSize * 2, paint);
+            canvas.drawBitmap(leftArrow, dpadX, dpadY + dpadSize, paint);
+            canvas.drawBitmap(rightArrow, dpadX + dpadSize * 2, dpadY + dpadSize, paint);
+
+            // Dibujar enemigos
             for (int i = 0; i < enemyCount; i++) {
-                canvas.drawBitmap(
-                        enemies[i].getBitmap(),
-                        enemies[i].getX(),
-                        enemies[i].getY(),
-                        paint
-                );
+                canvas.drawBitmap(enemies[i].getBitmap(), enemies[i].getX(), enemies[i].getY(), paint);
             }
-            canvas.drawBitmap(
-                    boom.getBitmap(),
-                    boom.getX(),
-                    boom.getY(),
-                    paint
-            );
 
-            //Unlocking the canvas
+            // Dibujar explosión si hay colisión
+            canvas.drawBitmap(boom.getBitmap(), boom.getX(), boom.getY(), paint);
+
             surfaceHolder.unlockCanvasAndPost(canvas);
         }
     }
@@ -143,17 +142,23 @@ public class GameView extends SurfaceView implements Runnable {
         gameThread.start();
     }
 
-    public boolean onTouchEvent(MotionEvent motionEvent){
-        switch (motionEvent.getAction() & MotionEvent.ACTION_MASK) {
-            case MotionEvent.ACTION_UP:
-                //stopping the boosting when screen is released
-                player.stopBoosting();
-                break;
-            case MotionEvent.ACTION_DOWN:
-                //boosting the space jet when screen is pressed
-                player.setBoosting();
-                break;
+    @Override
+    public boolean onTouchEvent(MotionEvent motionEvent) {
+        int touchX = (int) motionEvent.getX();
+        int touchY = (int) motionEvent.getY();
+
+        if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
+            // Detectar si se toca dentro de la cruceta
+            if (touchX >= dpadX + dpadSize && touchX <= dpadX + dpadSize * 2 && touchY >= dpadY && touchY <= dpadY + dpadSize) {
+                player.saltar();
+            } else if (touchX >= dpadX && touchX <= dpadX + dpadSize && touchY >= dpadY + dpadSize && touchY <= dpadY + dpadSize * 2) {
+                player.moverIzquierda();
+            } else if (touchX >= dpadX + dpadSize * 2 && touchX <= dpadX + dpadSize * 3 && touchY >= dpadY + dpadSize && touchY <= dpadY + dpadSize * 2) {
+                player.moverDerecha();
+            }
         }
         return true;
-        }
+    }
+
+
 }

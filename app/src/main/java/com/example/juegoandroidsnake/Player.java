@@ -9,80 +9,59 @@ public class Player {
     private Bitmap bitmap;
     private int x;
     private int y;
-    private int speed= 0;
+    private float velocidadY = 0; // Velocidad en el eje Y (float para mayor precisión)
+    private final float GRAVEDAD = 0.5f;
+    private final int FUERZA_SALTO = -12; // Fuerza del salto
+    private final int MAX_SALTOS = 2; // Máximo de saltos permitidos
+    private int saltosRealizados = 0; // Contador de saltos
 
-    private boolean boosting;
-    private final int GRAVITY = -10;
-    private int maxY;
+    private int maxY; // Altura máxima
     private int minY;
+    private int sueloY; // Posición del suelo
 
     private Rect detectCollision;
 
-    private final int MIN_SPEED = 1;
-    private final int MAX_SPEED = 20;
-
     public Player(Context context, int screenX, int screenY) {
-        x = 75;
-        y = 50;
-        speed = 1;
+        x = 750;
+        y = screenY - 100; // Inicia sobre el suelo
         bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.player);
 
-        //calculating maxY
         maxY = screenY - bitmap.getHeight();
-
-        //top edge's y point is 0 so min y will always be zero
         minY = 0;
+        sueloY = maxY - 150; // Suelo en la parte baja de la pantalla
 
-        //setting the boosting value to false initially
-        boosting = false;
-
-        detectCollision =  new Rect(x, y, bitmap.getWidth(), bitmap.getHeight());
-    }
-    //setting boosting true
-
-    public void setBoosting() {
-        boosting = true;
+        detectCollision = new Rect(x, y, x + bitmap.getWidth(), y + bitmap.getHeight());
     }
 
-    //setting boosting false
-    public void stopBoosting() {
-        boosting = false;
+    public void saltar() {
+        if (saltosRealizados < MAX_SALTOS) {
+            velocidadY = FUERZA_SALTO; // Aplicar fuerza de salto
+            saltosRealizados++; // Incrementar contador de saltos
+        }
     }
 
     public void update() {
-        //if the ship is boosting
-        if (boosting) {
-            //speeding up the ship
-            speed += 2;
-        } else {
-            //slowing down if not boosting
-            speed -= 5;
-        }
-        //controlling the top speed
-        if (speed > MAX_SPEED) {
-            speed = MAX_SPEED;
-        }
-        //if the speed is less than min speed
-        //controlling it so that it won't stop completely
-        if (speed < MIN_SPEED) {
-            speed = MIN_SPEED;
+        // Aplicar gravedad de forma acumulativa
+        velocidadY += GRAVEDAD;
+        y += velocidadY;
+
+        // Límite inferior (suelo)
+        if (y > sueloY) {
+            y = sueloY;
+            velocidadY = 0; // Detener movimiento
+            saltosRealizados = 0; // Resetear saltos al tocar el suelo
         }
 
-        //moving the ship down
-        y -= speed + GRAVITY;
-
-        //but controlling it also so that it won't go off the screen
+        // Límite superior (evita que el jugador salga de la pantalla)
         if (y < minY) {
             y = minY;
+            velocidadY = 0;
         }
-        if (y > maxY) {
-            y = maxY;
-        }
-        detectCollision.left = x;
-        detectCollision.top = y;
-        detectCollision.right = x + bitmap.getWidth();
-        detectCollision.bottom = y + bitmap.getHeight();
+
+        // Actualizar hitbox de colisión
+        detectCollision.set(x, y, x + bitmap.getWidth(), y + bitmap.getHeight());
     }
+
     public Rect getDetectCollision() {
         return detectCollision;
     }
@@ -90,6 +69,28 @@ public class Player {
     public Bitmap getBitmap() {
         return bitmap;
     }
+
+    public void moverArriba() {
+        y -= 20;
+        if (y < minY) y = minY;
+    }
+
+    public void moverAbajo() {
+        y += 20;
+        if (y > sueloY) y = sueloY;
+    }
+
+    public void moverIzquierda() {
+        x -= 20;
+        if (x < 0) x = 0;
+    }
+
+    public void moverDerecha() {
+        x += 20;
+        if (x > maxY - bitmap.getWidth()) x = maxY - bitmap.getWidth();
+    }
+
+
     public int getX() {
         return x;
     }
@@ -98,7 +99,7 @@ public class Player {
         return y;
     }
 
-    public int getSpeed() {
-        return speed;
+    public float getSpeed() {
+        return velocidadY;
     }
 }

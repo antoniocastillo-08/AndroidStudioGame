@@ -12,6 +12,9 @@ import java.util.Random;
  */
 public class Enemy {
     private Bitmap bitmap;
+    private Bitmap upArrow, downArrow, leftArrow, rightArrow;
+    private int dpadSize = 200; // Tamaño de cada botón de la cruceta
+    private int dpadX, dpadY;
 
     private int x;
     private int y;
@@ -46,7 +49,6 @@ public class Enemy {
 
     }
     public void update(int playerSpeed){
-        x -= playerSpeed;
         x -= speed;
         if (x < minX-bitmap.getWidth() ){
             Random generator = new Random();

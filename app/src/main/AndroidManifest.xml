@@ -8,18 +8,29 @@
         android:label="GodOfSaltos"
         android:theme="@style/Theme.JuegoAndroidSnake">
         <activity
-
-            android:name=".MainActivity"
+            android:name=".SplashScreen"
             android:exported="true"
-             android:theme="@style/Theme.AppCompat.DayNight.NoActionBar">
+            android:theme="@style/Theme.SplashScreen">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".GameActivity"
-            android:screenOrientation="landscape"/>
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:theme="@style/Theme.JuegoAndroidSnake" />
+        <activity
+            android:name=".GameActivity"
+            android:exported="true"
+            android:theme="@style/Theme.JuegoAndroidSnake"
+            android:screenOrientation="sensorLandscape"
+            />
+        <meta-data
+            android:name="preloaded_fonts"
+            android:resource="@array/preloaded_fonts" />
+
 
     </application>
 
