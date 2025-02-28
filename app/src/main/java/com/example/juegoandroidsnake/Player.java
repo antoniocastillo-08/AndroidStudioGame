@@ -9,12 +9,14 @@ public class Player {
     private Bitmap bitmap;
     private int x;
     private int y;
+    private final int VELOCIDAD = 10;
     private float velocidadY = 0; // Velocidad en el eje Y (float para mayor precisión)
     private final float GRAVEDAD = 0.5f;
     private final int FUERZA_SALTO = -12; // Fuerza del salto
     private final int MAX_SALTOS = 2; // Máximo de saltos permitidos
     private int saltosRealizados = 0; // Contador de saltos
 
+    private int maxX; // Borde derecho
     private int maxY; // Altura máxima
     private int minY;
     private int sueloY; // Posición del suelo
@@ -22,10 +24,11 @@ public class Player {
     private Rect detectCollision;
 
     public Player(Context context, int screenX, int screenY) {
-        x = 750;
+        x = 50; // Comienza en el borde izquierdo
         y = screenY - 100; // Inicia sobre el suelo
         bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.player);
 
+        maxX = screenX;
         maxY = screenY - bitmap.getHeight();
         minY = 0;
         sueloY = maxY - 150; // Suelo en la parte baja de la pantalla
@@ -41,6 +44,14 @@ public class Player {
     }
 
     public void update() {
+        // Movimiento automático hacia la derecha
+        x += VELOCIDAD;
+
+        // Si llega al borde derecho, reaparece en la izquierda (opcional)
+        if (x > maxX - bitmap.getWidth()) {
+            x = 0; // Reinicia desde la izquierda
+        }
+
         // Aplicar gravedad de forma acumulativa
         velocidadY += GRAVEDAD;
         y += velocidadY;
@@ -62,6 +73,13 @@ public class Player {
         detectCollision.set(x, y, x + bitmap.getWidth(), y + bitmap.getHeight());
     }
 
+    public void moverDerecha() {
+        x += VELOCIDAD;
+        if (x > maxX - bitmap.getWidth()) {
+            x = maxX - bitmap.getWidth(); // Evita que salga de la pantalla
+        }
+    }
+
     public Rect getDetectCollision() {
         return detectCollision;
     }
@@ -69,27 +87,6 @@ public class Player {
     public Bitmap getBitmap() {
         return bitmap;
     }
-
-    public void moverArriba() {
-        y -= 20;
-        if (y < minY) y = minY;
-    }
-
-    public void moverAbajo() {
-        y += 20;
-        if (y > sueloY) y = sueloY;
-    }
-
-    public void moverIzquierda() {
-        x -= 20;
-        if (x < 0) x = 0;
-    }
-
-    public void moverDerecha() {
-        x += 20;
-        if (x > maxY - bitmap.getWidth()) x = maxY - bitmap.getWidth();
-    }
-
 
     public int getX() {
         return x;

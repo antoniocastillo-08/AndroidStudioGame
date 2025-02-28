@@ -59,7 +59,7 @@ public class GameView extends SurfaceView implements Runnable {
 
 // Posición en la esquina inferior izquierda
         dpadX = 500;
-        dpadY = 100;
+        dpadY = 100 ;
 
     }
 
@@ -73,19 +73,8 @@ public class GameView extends SurfaceView implements Runnable {
     }
 
     private void update() {
+        player.moverDerecha();
         player.update();
-
-        boom.setX(-800);
-        boom.setY(-900);
-
-        for (int i = 0; i < enemyCount; i++) {
-            enemies[i].update(0);
-            if (Rect.intersects(player.getDetectCollision(), enemies[i].getDetectCollision())) {
-                boom.setX(enemies[i].getX());
-                boom.setY(enemies[i].getY());
-                enemies[i].setX(-200);
-            }
-        }
     }
 
     private void draw() {
@@ -144,21 +133,12 @@ public class GameView extends SurfaceView implements Runnable {
 
     @Override
     public boolean onTouchEvent(MotionEvent motionEvent) {
-        int touchX = (int) motionEvent.getX();
-        int touchY = (int) motionEvent.getY();
-
         if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
-            // Detectar si se toca dentro de la cruceta
-            if (touchX >= dpadX + dpadSize && touchX <= dpadX + dpadSize * 2 && touchY >= dpadY && touchY <= dpadY + dpadSize) {
-                player.saltar();
-            } else if (touchX >= dpadX && touchX <= dpadX + dpadSize && touchY >= dpadY + dpadSize && touchY <= dpadY + dpadSize * 2) {
-                player.moverIzquierda();
-            } else if (touchX >= dpadX + dpadSize * 2 && touchX <= dpadX + dpadSize * 3 && touchY >= dpadY + dpadSize && touchY <= dpadY + dpadSize * 2) {
-                player.moverDerecha();
-            }
+            player.saltar(); // Solo salta al tocar la pantalla
         }
         return true;
     }
+
 
 
 }
