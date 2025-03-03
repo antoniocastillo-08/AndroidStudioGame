@@ -20,7 +20,9 @@
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:theme="@style/Theme.JuegoAndroidSnake" />
+            android:theme="@style/Theme.JuegoAndroidSnake"
+            android:screenOrientation="sensorLandscape"
+            />
         <activity
             android:name=".GameActivity"
             android:exported="true"

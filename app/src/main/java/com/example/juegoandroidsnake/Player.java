@@ -29,7 +29,6 @@ public class Player {
     private int maxX; // Borde derecho
     private int maxY; // Altura máxima
     private int minY;
-    private int sueloY; // Posición del suelo
 
     private Rect detectCollision;
 
@@ -54,13 +53,14 @@ public class Player {
         maxX = screenX;
         maxY = screenY - frameHeight; // Ajuste de altura del jugador
         minY = 0;
-        sueloY = maxY - 50; // Ajuste de suelo
 
         detectCollision = new Rect(x, y, x + frameWidth, y + frameHeight);
     }
+
     public void draw(Canvas canvas) {
         canvas.drawBitmap(frames[frameIndex], x, y, null);
     }
+
     public void saltar() {
         if (saltosRealizados < MAX_SALTOS) {
             velocidadY = FUERZA_SALTO; // Aplicar fuerza de salto
@@ -72,40 +72,31 @@ public class Player {
         // Movimiento automático hacia la derecha
         x += VELOCIDAD;
 
-        // Si llega al borde derecho, reaparece en la izquierda (opcional)
+        // Si llega al borde derecho, reaparece en la izquierda
         if (x > maxX - frameWidth) {
-            x = 0; // Reinicia desde la izquierda
+            x = 0;
         }
 
         // Aplicar gravedad
         velocidadY += GRAVEDAD;
         y += velocidadY;
 
-        // Límite inferior (suelo)
-        if (y > sueloY) {
-            y = sueloY;
-            velocidadY = 0; // Detener movimiento
-            saltosRealizados = 0; // Resetear saltos al tocar el suelo
-        }
-
-        // Límite superior (evita que el jugador salga de la pantalla)
+        // Evitar que el jugador salga por arriba de la pantalla
         if (y < minY) {
             y = minY;
             velocidadY = 0;
         }
 
-
         // Controlar la animación (cambiar frame cada FRAME_DELAY)
         long currentTime = System.currentTimeMillis();
         if (currentTime - lastFrameTime > FRAME_DELAY) {
-            frameIndex = (frameIndex + 1) % frameCount; // Cambia al siguiente frame
+            frameIndex = (frameIndex + 1) % frameCount;
             lastFrameTime = currentTime;
         }
 
         // Actualizar hitbox de colisión
         detectCollision.set(x, y, x + frameWidth, y + frameHeight);
     }
-
 
     public void moverDerecha() {
         x += VELOCIDAD;

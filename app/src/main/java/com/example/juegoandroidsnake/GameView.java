@@ -24,19 +24,26 @@ public class GameView extends SurfaceView implements Runnable {
     private Enemy[] enemies;
     private int enemyCount = 3;
     private Boom boom;
+    private Rect sueloRect;
 
     private Bitmap background; // Imagen de fondo
 
+    private Escenario escenario;
 
     public GameView(Context context, int screenX, int screenY) {
         super(context);
 
         // Inicializar el jugador
         player = new Player(context, screenX, screenY);
+        int sueloY = screenY - 150;
+        sueloRect = new Rect(0, sueloY, screenX, screenY);
+
+        escenario = new Escenario(screenX, screenY);
 
         // Inicializar objetos de dibujo
         surfaceHolder = getHolder();
         paint = new Paint();
+
 
         background = BitmapFactory.decodeResource(getResources(), R.drawable.fondo);
         background = Bitmap.createScaledBitmap(background, screenX, screenY, false);
@@ -63,6 +70,7 @@ public class GameView extends SurfaceView implements Runnable {
     private void update() {
         player.moverDerecha();
         player.update();
+
     }
 
     private void draw() {
@@ -72,9 +80,8 @@ public class GameView extends SurfaceView implements Runnable {
             // Dibujar el fondo
             canvas.drawBitmap(background, 0, 0, paint);
 
-            // Dibujar el suelo
-            paint.setColor(Color.rgb(13, 60, 161));
-            canvas.drawRect(0, getHeight() - 150, getWidth(), getHeight(), paint);
+            escenario.dibujar(canvas);
+
 
             // Dibujar el jugador
             canvas.drawBitmap(player.getCurrentFrame(),player.getX(),player.getY(),paint);
