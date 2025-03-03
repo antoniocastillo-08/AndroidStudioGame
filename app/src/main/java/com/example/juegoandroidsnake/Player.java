@@ -3,10 +3,20 @@ package com.example.juegoandroidsnake;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.graphics.Rect;
 
 public class Player {
-    private Bitmap bitmap;
+    private Bitmap spriteSheet;
+    private Bitmap[] frames;
+
+    private int frameIndex = 0;  // Índice del frame actual
+    private int frameCount = 8;  // Número total de frames
+    private int frameWidth, frameHeight;  // Tamaño de cada frame
+    private long lastFrameTime = 0;  // Tiempo del último cambio de frame
+    private final int FRAME_DELAY = 100; // Milisegundos entre frames
+
+
     private int x;
     private int y;
     private final int VELOCIDAD = 10;
@@ -26,16 +36,31 @@ public class Player {
     public Player(Context context, int screenX, int screenY) {
         x = 50; // Comienza en el borde izquierdo
         y = screenY - 100; // Inicia sobre el suelo
-        bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.player);
+
+        spriteSheet = BitmapFactory.decodeResource(context.getResources(), R.drawable.player_sprite);
+        spriteSheet = Bitmap.createScaledBitmap(spriteSheet, 864, 130, false);
+
+        frameWidth = spriteSheet.getWidth() / frameCount; // Dividir la imagen en frames
+        frameHeight = spriteSheet.getHeight();
+
+
+        frames = new Bitmap[frameCount];
+        for (int i = 0; i < frameCount; i++) {
+            Bitmap frame = Bitmap.createBitmap(spriteSheet, i * frameWidth, 0, frameWidth, frameHeight);
+
+            frames[i] = Bitmap.createScaledBitmap(frame, frameWidth * 2, frameHeight * 2, false); // Doble tamaño
+        }
 
         maxX = screenX;
-        maxY = screenY - bitmap.getHeight();
+        maxY = screenY - frameHeight; // Ajuste de altura del jugador
         minY = 0;
-        sueloY = maxY - 150; // Suelo en la parte baja de la pantalla
+        sueloY = maxY - 50; // Ajuste de suelo
 
-        detectCollision = new Rect(x, y, x + bitmap.getWidth(), y + bitmap.getHeight());
+        detectCollision = new Rect(x, y, x + frameWidth, y + frameHeight);
     }
-
+    public void draw(Canvas canvas) {
+        canvas.drawBitmap(frames[frameIndex], x, y, null);
+    }
     public void saltar() {
         if (saltosRealizados < MAX_SALTOS) {
             velocidadY = FUERZA_SALTO; // Aplicar fuerza de salto
@@ -48,11 +73,11 @@ public class Player {
         x += VELOCIDAD;
 
         // Si llega al borde derecho, reaparece en la izquierda (opcional)
-        if (x > maxX - bitmap.getWidth()) {
+        if (x > maxX - frameWidth) {
             x = 0; // Reinicia desde la izquierda
         }
 
-        // Aplicar gravedad de forma acumulativa
+        // Aplicar gravedad
         velocidadY += GRAVEDAD;
         y += velocidadY;
 
@@ -69,23 +94,36 @@ public class Player {
             velocidadY = 0;
         }
 
+
+        // Controlar la animación (cambiar frame cada FRAME_DELAY)
+        long currentTime = System.currentTimeMillis();
+        if (currentTime - lastFrameTime > FRAME_DELAY) {
+            frameIndex = (frameIndex + 1) % frameCount; // Cambia al siguiente frame
+            lastFrameTime = currentTime;
+        }
+
         // Actualizar hitbox de colisión
-        detectCollision.set(x, y, x + bitmap.getWidth(), y + bitmap.getHeight());
+        detectCollision.set(x, y, x + frameWidth, y + frameHeight);
     }
+
 
     public void moverDerecha() {
         x += VELOCIDAD;
-        if (x > maxX - bitmap.getWidth()) {
-            x = maxX - bitmap.getWidth(); // Evita que salga de la pantalla
+        if (x > maxX - frameWidth) {
+            x = maxX - frameWidth; // Evita que salga de la pantalla
         }
+    }
+
+    public Bitmap getCurrentFrame() {
+        return frames[frameIndex]; // Retorna el frame animado actual
     }
 
     public Rect getDetectCollision() {
         return detectCollision;
     }
 
-    public Bitmap getBitmap() {
-        return bitmap;
+    public Bitmap getSpriteSheet() {
+        return spriteSheet;
     }
 
     public int getX() {

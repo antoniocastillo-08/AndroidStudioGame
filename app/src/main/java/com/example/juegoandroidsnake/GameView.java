@@ -27,10 +27,6 @@ public class GameView extends SurfaceView implements Runnable {
 
     private Bitmap background; // Imagen de fondo
 
-    private Bitmap upArrow, downArrow, leftArrow, rightArrow;
-    private int dpadSize = 200; // Tamaño de cada botón de la cruceta
-    private int dpadX, dpadY;
-
 
     public GameView(Context context, int screenX, int screenY) {
         super(context);
@@ -52,14 +48,6 @@ public class GameView extends SurfaceView implements Runnable {
         }
         boom = new Boom(context);
 
-        upArrow = BitmapFactory.decodeResource(getResources(), R.drawable.top);
-        downArrow = BitmapFactory.decodeResource(getResources(), R.drawable.down);
-        leftArrow = BitmapFactory.decodeResource(getResources(), R.drawable.left);
-        rightArrow = BitmapFactory.decodeResource(getResources(), R.drawable.right);
-
-// Posición en la esquina inferior izquierda
-        dpadX = 500;
-        dpadY = 100 ;
 
     }
 
@@ -89,14 +77,7 @@ public class GameView extends SurfaceView implements Runnable {
             canvas.drawRect(0, getHeight() - 150, getWidth(), getHeight(), paint);
 
             // Dibujar el jugador
-            canvas.drawBitmap(player.getBitmap(), player.getX(), player.getY(), paint);
-
-            // Dibujar la cruceta
-            canvas.drawBitmap(upArrow, dpadX + dpadSize, dpadY, paint);
-            canvas.drawBitmap(downArrow, dpadX + dpadSize, dpadY + dpadSize * 2, paint);
-            canvas.drawBitmap(leftArrow, dpadX, dpadY + dpadSize, paint);
-            canvas.drawBitmap(rightArrow, dpadX + dpadSize * 2, dpadY + dpadSize, paint);
-
+            canvas.drawBitmap(player.getCurrentFrame(),player.getX(),player.getY(),paint);
             // Dibujar enemigos
             for (int i = 0; i < enemyCount; i++) {
                 canvas.drawBitmap(enemies[i].getBitmap(), enemies[i].getX(), enemies[i].getY(), paint);
