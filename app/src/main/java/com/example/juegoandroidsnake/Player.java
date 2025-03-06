@@ -34,7 +34,6 @@ public class Player {
 
     public Player(Context context, int screenX, int screenY) {
         x = 50; // Comienza en el borde izquierdo
-        y = screenY - 100; // Inicia sobre el suelo
 
         spriteSheet = BitmapFactory.decodeResource(context.getResources(), R.drawable.player_sprite);
         spriteSheet = Bitmap.createScaledBitmap(spriteSheet, 864, 130, false);
@@ -42,16 +41,16 @@ public class Player {
         frameWidth = spriteSheet.getWidth() / frameCount; // Dividir la imagen en frames
         frameHeight = spriteSheet.getHeight();
 
-
         frames = new Bitmap[frameCount];
         for (int i = 0; i < frameCount; i++) {
             Bitmap frame = Bitmap.createBitmap(spriteSheet, i * frameWidth, 0, frameWidth, frameHeight);
 
             frames[i] = Bitmap.createScaledBitmap(frame, frameWidth * 2, frameHeight * 2, false); // Doble tamaño
         }
+        y = screenY - frameHeight - 200; // Coloca al jugador sobre el suelo
 
         maxX = screenX;
-        maxY = screenY - frameHeight; // Ajuste de altura del jugador
+        maxY = screenY - frameHeight -280; // Ajuste de altura del jugador
         minY = 0;
 
         detectCollision = new Rect(x, y, x + frameWidth, y + frameHeight);
@@ -77,15 +76,18 @@ public class Player {
             x = 0;
         }
 
+
         // Aplicar gravedad
         velocidadY += GRAVEDAD;
         y += velocidadY;
 
-        // Evitar que el jugador salga por arriba de la pantalla
-        if (y < minY) {
-            y = minY;
+// Evitar que el personaje atraviese el suelo
+        if (y > maxY) {
+            y = maxY;
             velocidadY = 0;
+            saltosRealizados = 0; // Restablecer los saltos al tocar el suelo
         }
+
 
         // Controlar la animación (cambiar frame cada FRAME_DELAY)
         long currentTime = System.currentTimeMillis();
@@ -119,6 +121,9 @@ public class Player {
 
     public int getX() {
         return x;
+    }
+    public void setX(int x) {
+        this.x = x;
     }
 
     public int getY() {

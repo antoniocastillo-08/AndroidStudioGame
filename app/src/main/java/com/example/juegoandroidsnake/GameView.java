@@ -24,7 +24,7 @@ public class GameView extends SurfaceView implements Runnable {
     private Enemy[] enemies;
     private int enemyCount = 3;
     private Boom boom;
-    private Rect sueloRect;
+    private int sueloY;
 
     private Bitmap background; // Imagen de fondo
 
@@ -35,11 +35,9 @@ public class GameView extends SurfaceView implements Runnable {
 
         // Inicializar el jugador
         player = new Player(context, screenX, screenY);
-        int sueloY = screenY - 150;
-        sueloRect = new Rect(0, sueloY, screenX, screenY);
+        int sueloY = screenY - 200;
 
-        escenario = new Escenario(screenX, screenY);
-
+        escenario = new Escenario(screenX,screenY,1);
         // Inicializar objetos de dibujo
         surfaceHolder = getHolder();
         paint = new Paint();

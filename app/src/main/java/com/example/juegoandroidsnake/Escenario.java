@@ -5,49 +5,59 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import java.util.ArrayList;
-import java.util.Random;
 
 public class Escenario {
 
     private ArrayList<Rect> plataformas; // Lista de plataformas
     private Rect suelo; // Suelo del escenario
     private Paint paint;
-    private Random random;
 
     private int screenX;
     private int screenY;
-    private int maxPlataformas = 5; // Número máximo de plataformas
 
-    public Escenario(int screenX, int screenY) {
+    public Escenario(int screenX, int screenY, int tipoEscenario) {
         this.screenX = screenX;
         this.screenY = screenY;
         plataformas = new ArrayList<>();
         paint = new Paint();
-        random = new Random();
 
         // Suelo
-        suelo = new Rect(0, screenY - 150, screenX, screenY); // Ajuste de altura del suelo
+        suelo = new Rect(0, screenY - 200, screenX, screenY); // Ajuste de altura del suelo
 
-        // Generar plataformas proceduralmente
-        generarPlataformas();
+        // Generar plataformas según el tipo de escenario
+        generarPlataformas(tipoEscenario);
     }
 
-    // Método para generar plataformas de forma procedural
-    private void generarPlataformas() {
-        int minWidth = 200; // Ancho mínimo de plataforma
-        int maxWidth = 500; // Ancho máximo de plataforma
-        int minHeight = 100; // Distancia mínima entre plataformas
-        int maxHeight = 400; // Distancia máxima entre plataformas
-
-        for (int i = 0; i < maxPlataformas; i++) {
-            int width = random.nextInt(maxWidth - minWidth) + minWidth; // Ancho aleatorio
-            int height = random.nextInt(maxHeight - minHeight) + minHeight; // Altura aleatoria
-
-            int x = random.nextInt(screenX - width); // Posición horizontal aleatoria
-            int y = screenY - height - random.nextInt(maxHeight / 2); // Posición vertical aleatoria (más cerca del suelo)
-
-            // Añadir la plataforma generada
-            plataformas.add(new Rect(x, y, x + width, y + height));
+    // Método para generar plataformas basadas en un tipo específico de escenario
+    private void generarPlataformas(int tipoEscenario) {
+        // Tipo 1: Escenario simple
+        if (tipoEscenario == 1) {
+            plataformas.add(new Rect(400, screenY - 400, 700, screenY));
+            plataformas.add(new Rect(500, screenY - 600, 700, screenY - 550));
+            plataformas.add(new Rect(800, screenY - 800, 1100, screenY - 750));
+        }
+        // Tipo 2: Escenario con muchas plataformas
+        else if (tipoEscenario == 2) {
+            plataformas.add(new Rect(100, screenY - 350, 300, screenY - 300));
+            plataformas.add(new Rect(400, screenY - 500, 600, screenY - 450));
+            plataformas.add(new Rect(700, screenY - 650, 900, screenY - 600));
+            plataformas.add(new Rect(100, screenY - 800, 400, screenY - 750));
+        }
+        // Tipo 3: Escenario de plataformas muy altas
+        else if (tipoEscenario == 3) {
+            plataformas.add(new Rect(100, screenY - 500, 300, screenY - 450));
+            plataformas.add(new Rect(400, screenY - 800, 600, screenY - 750));
+            plataformas.add(new Rect(800, screenY - 1000, 1000, screenY - 950));
+        }
+        // Tipo 4: Escenario con plataformas grandes y separadas
+        else if (tipoEscenario == 4) {
+            plataformas.add(new Rect(100, screenY - 400, 600, screenY - 350));
+            plataformas.add(new Rect(700, screenY - 650, 1200, screenY - 600));
+        }
+        // Tipo 5: Escenario con plataformas en el aire
+        else if (tipoEscenario == 5) {
+            plataformas.add(new Rect(100, screenY - 600, 500, screenY - 550));
+            plataformas.add(new Rect(700, screenY - 850, 1200, screenY - 800));
         }
     }
 
@@ -69,15 +79,5 @@ public class Escenario {
 
     public Rect getSuelo() {
         return suelo;
-    }
-
-    // Método para verificar colisiones entre el jugador y las plataformas
-    public boolean colisionConPlataforma(Rect jugador) {
-        for (Rect plataforma : plataformas) {
-            if (Rect.intersects(jugador, plataforma)) {
-                return true; // Colisión detectada
-            }
-        }
-        return false; // No hay colisión
     }
 }
