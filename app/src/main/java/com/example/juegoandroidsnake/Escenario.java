@@ -32,13 +32,13 @@ public class Escenario {
     private void generarPlataformas(int tipoEscenario) {
         // Tipo 1: Escenario simple
         if (tipoEscenario == 1) {
-            plataformas.add(new Rect(400, screenY - 400, 700, screenY));
-            plataformas.add(new Rect(500, screenY - 600, 700, screenY - 550));
-            plataformas.add(new Rect(800, screenY - 800, 1100, screenY - 750));
+            plataformas.add(new Rect(0, screenY - 300, 600, screenY));
+            plataformas.add(new Rect(1000, screenY - 400, 1500, screenY));
+
         }
         // Tipo 2: Escenario con muchas plataformas
         else if (tipoEscenario == 2) {
-            plataformas.add(new Rect(100, screenY - 350, 300, screenY - 300));
+            plataformas.add(new Rect(100, screenY - 700, 300, screenY - 300));
             plataformas.add(new Rect(400, screenY - 500, 600, screenY - 450));
             plataformas.add(new Rect(700, screenY - 650, 900, screenY - 600));
             plataformas.add(new Rect(100, screenY - 800, 400, screenY - 750));
