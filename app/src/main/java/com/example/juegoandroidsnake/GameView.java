@@ -1,6 +1,7 @@
 package com.example.juegoandroidsnake;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -13,7 +14,7 @@ import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
-public class GameView extends SurfaceView implements Runnable {
+public class GameView extends SurfaceView  implements Runnable, Player.OnCambiarEscenarioListener  {
 
     volatile boolean playing;
     private Thread gameThread = null;
@@ -42,12 +43,12 @@ public class GameView extends SurfaceView implements Runnable {
 
     public GameView(Context context, int screenX, int screenY) {
         super(context);
-
+        escenario = new Escenario(screenX, screenY, 1,context);
         // Inicializar el jugador
         player = new Player(context, screenX, screenY);
+        player.setOnCambiarEscenarioListener(this); // Establecer el listener para cambiar el escenario
         sueloY = screenY - 200;
 
-        escenario = new Escenario(screenX, screenY, 1);
 
         // Inicializar objetos de dibujo
         surfaceHolder = getHolder();
@@ -98,12 +99,25 @@ public class GameView extends SurfaceView implements Runnable {
         }
 
         // Actualizar la posición del jugador y otros objetos
-        player.update(escenario.getPlataformas(), escenario.getSuelo());
+        player.update(escenario.getPlataformas(), escenario.getPlataformasMuerte(), escenario.getSuelo());
+
+        // Verificar si el jugador ha tocado la plataforma de meta
+        if (player.getRect().intersect(escenario.getPlataformaMeta())) {
+            // El jugador ha ganado
+            Intent intent = new Intent(getContext(), GameOverActivity.class);
+            intent.putExtra("muertes", contadorMuertes); // Pasar el contador de muertes
+            getContext().startActivity(intent);
+            playing = false; // Detener el bucle del juego
+        }
 
         // Verificar si el jugador ha activado el estado de Game Over
         if (player.isGameOver()) {
             gameOver = true; // Activar estado de Game Over
             contadorMuertes++; // Incrementar el contador de muertes
+            escenario.reiniciarEscenario();
+
+            // Reiniciar la posición del jugador
+            player.reset();
         }
     }
 
@@ -203,5 +217,10 @@ public class GameView extends SurfaceView implements Runnable {
             soundPool.release();
             soundPool = null;
         }
+    }
+
+    @Override
+    public void onCambiarEscenario() {
+        escenario.cambiarEscenario();
     }
 }

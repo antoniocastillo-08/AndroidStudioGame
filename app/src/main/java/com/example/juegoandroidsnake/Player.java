@@ -20,9 +20,9 @@ public class Player {
 
     private int x;
     private int y;
-    private final int VELOCIDAD = 20;
+    private final int VELOCIDAD = 18;
     private float velocidadY = 0; // Velocidad en el eje Y (float para mayor precisión)
-    private final float GRAVEDAD = 0.5f;
+    private final float GRAVEDAD = 1f;
     private final int FUERZA_SALTO = -12; // Fuerza del salto
     private final int MAX_SALTOS = 2; // Máximo de saltos permitidos
     private int saltosRealizados = 0; // Contador de saltos
@@ -55,7 +55,7 @@ public class Player {
         frameHeight = frames[0].getHeight(); // Nuevo alto después de escalar
 
         // Posición inicial del jugador
-        y = screenY - frameHeight - 200; // Coloca al jugador sobre el suelo
+        y = screenY - frameHeight - 300; // Coloca al jugador sobre el suelo
 
         // Límites de la pantalla
         maxX = screenX;
@@ -63,13 +63,25 @@ public class Player {
         minY = 0;
 
         // Inicializar el Rect de colisión con el tamaño del sprite
-        detectCollision = new Rect(x, y, x + frameWidth, y + frameHeight);
+        detectCollision = new Rect(x, y, x + frameWidth-200, y + frameHeight-100);
         gameOver = false; // Inicialmente, el juego no está en estado de Game Over
     }
 
     public void draw(Canvas canvas) {
         canvas.drawBitmap(frames[frameIndex], x, y, null);
     }
+
+    public interface OnCambiarEscenarioListener {
+        void onCambiarEscenario();
+    }
+
+    private OnCambiarEscenarioListener listener;
+
+    public void setOnCambiarEscenarioListener(OnCambiarEscenarioListener listener) {
+        this.listener = listener;
+    }
+
+
 
     public void saltar() {
         if (saltosRealizados < MAX_SALTOS) {
@@ -78,7 +90,7 @@ public class Player {
         }
     }
 
-    public void update(ArrayList<Rect> plataformas, Rect suelo) {
+    public void update(ArrayList<Rect> plataformas, ArrayList<Rect> plataformasMuerte, Rect suelo) {
         if (gameOver) {
             return; // Si el juego está en estado de Game Over, no actualizar al jugador
         }
@@ -117,6 +129,9 @@ public class Player {
         // Si llega al borde derecho, reaparece en la izquierda
         if (x > maxX - frameWidth) {
             x = 0;
+            if (listener != null) {
+                listener.onCambiarEscenario(); // Notificar el cambio de escenario
+            }
         }
 
         // Aplicar gravedad
@@ -139,6 +154,14 @@ public class Player {
                 velocidadY = 0; // Detener la caída
                 saltosRealizados = 0; // Restablecer los saltos
                 enPlataforma = true;
+                break;
+            }
+        }
+
+        // Verificar colisión con las plataformas de muerte
+        for (Rect plataformaMuerte : plataformasMuerte) {
+            if (Rect.intersects(detectCollision, plataformaMuerte)) {
+                gameOver = true; // Activar estado de Game Over
                 break;
             }
         }
