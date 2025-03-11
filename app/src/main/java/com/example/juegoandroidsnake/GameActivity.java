@@ -30,13 +30,17 @@ public class GameActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        gameView.pause();
+        if (gameView != null) {
+            gameView.pause(); // Pausar el juego cuando la actividad se pausa
+        }
     }
 
     //running the game when activity is resumed
     @Override
     protected void onResume() {
         super.onResume();
-        gameView.resume();
+        if (gameView != null) {
+            gameView.resume(); // Reanudar el juego cuando la actividad se reanuda
+        }
     }
 }

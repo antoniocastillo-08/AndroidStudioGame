@@ -7,6 +7,8 @@
         android:icon="@mipmap/icon"
         android:label="ScottAdventure"
         android:theme="@style/Theme.JuegoAndroidSnake">
+
+        <!-- Pantalla de inicio -->
         <activity
             android:name=".SplashScreen"
             android:exported="true"
@@ -17,22 +19,33 @@
             </intent-filter>
         </activity>
 
+        <!-- Menú principal -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
             android:theme="@style/Theme.JuegoAndroidSnake"
-            android:screenOrientation="sensorLandscape"
-            />
+            android:screenOrientation="sensorLandscape" />
+
+        <!-- Actividad del juego -->
         <activity
             android:name=".GameActivity"
             android:exported="true"
             android:theme="@style/Theme.JuegoAndroidSnake"
-            android:screenOrientation="sensorLandscape"
-            />
+            android:screenOrientation="sensorLandscape" />
+
+        <!-- Actividad de Game Over -->
+        <activity
+            android:name=".GameOverActivity"
+            android:exported="true"
+            android:theme="@style/Theme.JuegoAndroidSnake"
+            android:screenOrientation="sensorLandscape" />
+
+        <!-- Fuentes pre-cargadas -->
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
 
+        <!-- ID de la aplicación para AdMob -->
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="ca-app-pub-3940256099942544~3347511713"/>

@@ -63,13 +63,14 @@ public class Player {
         minY = 0;
 
         // Inicializar el Rect de colisión con el tamaño del sprite
-        detectCollision = new Rect(x, y, x + frameWidth-200, y + frameHeight-100);
+        detectCollision = new Rect(x, y, x + frameWidth-200, y + frameHeight-150);
         gameOver = false; // Inicialmente, el juego no está en estado de Game Over
     }
 
     public void draw(Canvas canvas) {
         canvas.drawBitmap(frames[frameIndex], x, y, null);
     }
+
 
     public interface OnCambiarEscenarioListener {
         void onCambiarEscenario();

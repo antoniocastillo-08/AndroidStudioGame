@@ -11,15 +11,13 @@
         android:id="@+id/imageButton1"
         android:layout_width="273dp"
         android:layout_height="133dp"
-        android:scaleType="fitXY"
-        app:srcCompat="@drawable/_7015f49618334f456347a648713aad6"
-        tools:layout_editor_absoluteX="69dp"
-        tools:layout_editor_absoluteY="153dp"
         android:contentDescription="Botón de inicio"
+        android:scaleType="fitXY"
         app:layout_constraintBottom_toTopOf="@id/imageButton2"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/adView"
+        app:srcCompat="@drawable/_7015f49618334f456347a648713aad6"
         tools:ignore="MissingConstraints" />
 
     <ImageButton
@@ -40,7 +38,7 @@
     <com.google.android.gms.ads.AdView
         android:id="@+id/adView"
         android:layout_width="match_parent"
-        android:layout_height="30dp"
+        android:layout_height="50dp"
         android:layout_alignParentBottom="true"
         app:adSize="BANNER"
         app:adUnitId="ca-app-pub-3940256099942544/6300978111"

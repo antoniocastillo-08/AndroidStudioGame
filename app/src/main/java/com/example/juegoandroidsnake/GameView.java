@@ -1,5 +1,6 @@
 package com.example.juegoandroidsnake;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -10,6 +11,9 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.media.MediaPlayer;
 import android.media.SoundPool;
+import android.os.Handler;
+import android.os.Looper;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -19,7 +23,7 @@ public class GameView extends SurfaceView  implements Runnable, Player.OnCambiar
     volatile boolean playing;
     private Thread gameThread = null;
     private Player player;
-
+    private Bitmap metaImage;
     private Paint paint;
     private Canvas canvas;
     private SurfaceHolder surfaceHolder;
@@ -27,9 +31,7 @@ public class GameView extends SurfaceView  implements Runnable, Player.OnCambiar
     private SoundPool soundPool;
     private int saltoSoundId;
 
-    private Enemy[] enemies;
-    private int enemyCount = 3;
-    private Boom boom;
+
     private int sueloY;
 
     private Bitmap background; // Imagen de fondo
@@ -40,7 +42,7 @@ public class GameView extends SurfaceView  implements Runnable, Player.OnCambiar
     private int contadorMuertes; // Contador de muertes
 
     private MediaPlayer mediaPlayer; // Reproductor de música de fondo
-
+    private MediaPlayer mediaPlayerGanar;
     public GameView(Context context, int screenX, int screenY) {
         super(context);
         escenario = new Escenario(screenX, screenY, 1,context);
@@ -62,14 +64,6 @@ public class GameView extends SurfaceView  implements Runnable, Player.OnCambiar
         gameOverImage = BitmapFactory.decodeResource(getResources(), R.drawable.game_over);
         gameOverImage = Bitmap.createScaledBitmap(gameOverImage, screenX, screenY, false);
 
-        // Crear enemigos
-        enemies = new Enemy[enemyCount];
-        for (int i = 0; i < enemyCount; i++) {
-            enemies[i] = new Enemy(context, screenX, screenY);
-        }
-
-        // Inicializar la explosión
-        boom = new Boom(context);
 
         // Inicializar estado de Game Over y contador de muertes
         gameOver = false;
@@ -78,6 +72,9 @@ public class GameView extends SurfaceView  implements Runnable, Player.OnCambiar
         soundPool = new SoundPool.Builder().setMaxStreams(5).build();
         saltoSoundId = soundPool.load(context, R.raw.salto, 1);
 
+        metaImage = BitmapFactory.decodeResource(getResources(), R.drawable.meta_icon);
+        metaImage = Bitmap.createScaledBitmap(metaImage, 300, 600, false);
+        mediaPlayerGanar = MediaPlayer.create(context, R.raw.musica_ganar);
         // Inicializar el reproductor de música de fondo
         mediaPlayer = MediaPlayer.create(context, R.raw.musica_fondo);
         mediaPlayer.setLooping(true); // Repetir la música en bucle
@@ -101,13 +98,32 @@ public class GameView extends SurfaceView  implements Runnable, Player.OnCambiar
         // Actualizar la posición del jugador y otros objetos
         player.update(escenario.getPlataformas(), escenario.getPlataformasMuerte(), escenario.getSuelo());
 
-        // Verificar si el jugador ha tocado la plataforma de meta
-        if (player.getRect().intersect(escenario.getPlataformaMeta())) {
+        // Verificar si el jugador ha tocado la plataforma de meta (solo si existe)
+        if (escenario.getPlataformaMeta() != null && player.getDetectCollision().intersect(escenario.getPlataformaMeta())) {
+
             // El jugador ha ganado
-            Intent intent = new Intent(getContext(), GameOverActivity.class);
-            intent.putExtra("muertes", contadorMuertes); // Pasar el contador de muertes
-            getContext().startActivity(intent);
-            playing = false; // Detener el bucle del juego
+            if (mediaPlayer != null && mediaPlayer.isPlaying()) {
+                mediaPlayer.pause(); // Pausar la música de fondo
+            }
+
+            if (mediaPlayerGanar != null && !mediaPlayerGanar.isPlaying()) {
+                mediaPlayerGanar.start(); // Reproducir música de victoria
+            }
+
+            // Detener el bucle del juego
+            playing = false;
+
+            // Retrasar la transición a GameOverActivity durante 3 segundos (3000 milisegundos)
+            new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    // Cambiar a la actividad GameOverActivity después del retraso
+                    Intent intent = new Intent(getContext(), GameOverActivity.class);
+                    intent.putExtra("muertes", contadorMuertes); // Pasar el contador de muertes
+                    getContext().startActivity(intent);
+                    ((Activity) getContext()).finish(); // Cerrar la actividad actual
+                }
+            }, 3000); // Retraso de 3 segundos
         }
 
         // Verificar si el jugador ha activado el estado de Game Over
@@ -134,13 +150,10 @@ public class GameView extends SurfaceView  implements Runnable, Player.OnCambiar
             // Dibujar el jugador
             canvas.drawBitmap(player.getCurrentFrame(), player.getX(), player.getY(), paint);
 
-            // Dibujar enemigos
-            for (int i = 0; i < enemyCount; i++) {
-                canvas.drawBitmap(enemies[i].getBitmap(), enemies[i].getX(), enemies[i].getY(), paint);
+            Rect meta = escenario.getPlataformaMeta();
+            if (meta != null) {
+                canvas.drawBitmap(metaImage, meta.left, meta.top - metaImage.getHeight(), paint);
             }
-
-            // Dibujar explosión si hay colisión
-            canvas.drawBitmap(boom.getBitmap(), boom.getX(), boom.getY(), paint);
 
             // Dibujar pantalla de Game Over si el juego ha terminado
             if (gameOver) {
@@ -165,10 +178,12 @@ public class GameView extends SurfaceView  implements Runnable, Player.OnCambiar
     }
 
     public void pause() {
+        Log.d("GameView", "Juego pausado");
         playing = false;
         try {
             gameThread.join();
         } catch (InterruptedException e) {
+            Log.e("GameView", "Error al pausar el hilo del juego", e);
         }
 
         // Pausar la música de fondo cuando el juego se pausa
@@ -177,7 +192,9 @@ public class GameView extends SurfaceView  implements Runnable, Player.OnCambiar
         }
     }
 
+
     public void resume() {
+        Log.d("GameView", "Juego reanudado");
         playing = true;
         gameThread = new Thread(this);
         gameThread.start();
@@ -185,8 +202,7 @@ public class GameView extends SurfaceView  implements Runnable, Player.OnCambiar
         // Reanudar la música de fondo cuando el juego se reanuda
         if (mediaPlayer != null && !mediaPlayer.isPlaying()) {
             mediaPlayer.start();
-        }
-    }
+        }    }
 
     @Override
     public boolean onTouchEvent(MotionEvent motionEvent) {
@@ -212,6 +228,10 @@ public class GameView extends SurfaceView  implements Runnable, Player.OnCambiar
         if (mediaPlayer != null) {
             mediaPlayer.release();
             mediaPlayer = null;
+        }
+        if (mediaPlayerGanar != null) {
+            mediaPlayerGanar.release(); // Liberar el reproductor de música de victoria
+            mediaPlayerGanar = null;
         }
         if (soundPool != null) {
             soundPool.release();

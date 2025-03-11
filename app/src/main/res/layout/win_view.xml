@@ -4,39 +4,40 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:gravity="center"
-    android:padding="16dp">
+    android:padding="16dp"
+    android:background="@color/black">
 
     <TextView
         android:id="@+id/textViewGanaste"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="24dp"
         android:text="HAS GANADO!!!"
-        android:textSize="30sp"
-        android:textStyle="bold"
         android:textColor="@android:color/holo_green_dark"
-        android:layout_marginBottom="24dp"/>
+        android:textSize="30sp"
+        android:textStyle="bold" />
 
     <TextView
         android:id="@+id/textViewMuertes"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="24dp"
         android:text="Muertes: 0"
-        android:textSize="24sp"
-        android:layout_marginBottom="24dp"/>
+        android:textSize="24sp" />
 
     <Button
         android:id="@+id/buttonReiniciar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
         android:text="Reiniciar"
-        android:textSize="18sp"
-        android:layout_marginBottom="16dp"/>
+        android:textSize="18sp" />
 
     <Button
         android:id="@+id/buttonMenu"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Menú Principal"
-        android:textSize="18sp"/>
+        android:text="Menú"
+        android:textSize="18sp" />
 
 </LinearLayout>
