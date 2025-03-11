@@ -67,10 +67,8 @@ public class Escenario {
                 break;
             case 5:
                 plataformas.add(new Rect(0, screenY - 400, 400, screenY - 350));
-                plataformas.add(new Rect(400, screenY - 450, 700, screenY - 400));
-                plataformas.add(new Rect(700, screenY - 500, 1000, screenY - 450));
-                plataformas.add(new Rect(1000, screenY - 550, 1300, screenY - 500));
-                plataformas.add(new Rect(1300, screenY - 600, 1600, screenY - 550));
+                plataformas.add(new Rect(600, screenY - 450, 1000, screenY - 400));
+                plataformas.add(new Rect(1200, screenY - 500, 1600, screenY - 450));
 
                 plataformaMeta = new Rect(screenX - 400, screenY - 400, screenX, screenY);
                 break;
